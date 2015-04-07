@@ -1,9 +1,7 @@
 #!/usr/bin/env python2.7
 # script by Alex Eames http://RasPi.tv
 # needs RPi.GPIO 0.5.2 or later
-# No guarantees. No responsibility accepted. It works for me.
-# If you need help with it, sorry I haven't got time. I'll try and add more
-# documentation as time goes by. But no promises.
+# updated to work on the A+
 
 import RPi.GPIO as GPIO
 from subprocess import call
@@ -18,16 +16,16 @@ if front_led_status == "0":
     print "front LED off"
     front_led_status = 0
 
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
 
-# GPIO 23 & 25 set up as input, pulled up to avoid false detection.
+# GPIO 33 & 25 set up as input, pulled up to avoid false detection.
 # Both ports are wired to connect to GND on button press.
 # So we'll be setting up falling edge detection for both
-GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(33, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 #GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-# GPIO 24 set up as an input, pulled down, connected to 3V3 on button press
-GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# GPIO 35 set up as an input, pulled down, connected to 3V3 on button press
+GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Set up GPIO 5 for camera LED control and rear LED control
 GPIO.setup(5, GPIO.OUT)
@@ -118,17 +116,17 @@ def shutdown():
     sys.exit()
 
 print "Make sure you have a button connected so that when pressed"
-print "it will connect GPIO port 23 (pin 16) to GND (pin 6)\n"
+print "it will connect GPIO port 33 (pin 16) to GND (pin 6)\n"
 print "You will also need a second button connected so that when pressed"
-print "it will connect GPIO port 24 (pin 18) to 3V3 (pin 1)\n"
+print "it will connect GPIO port 35 (pin 18) to 3V3 (pin 1)\n"
 #print "You will also need a third button connected so that when pressed"
 #print "it will connect GPIO port 25 (pin 22) to GND\n"
 
 # optional for when you're at the terminal
 #raw_input("Press Enter when ready\n>")
 
-# when a falling edge is detected on port 23 my_callback2() will be run
-GPIO.add_event_detect(23, GPIO.FALLING, callback=my_callback2)
+# when a falling edge is detected on port 33 my_callback2() will be run
+GPIO.add_event_detect(33, GPIO.FALLING, callback=my_callback2)
 
 # when a falling edge is detected on port 25, my_callback() will be run
 #GPIO.add_event_detect(25, GPIO.FALLING, callback=my_callback, bouncetime=500)
@@ -157,19 +155,19 @@ except:
 
 try:
     while True:
-        # this will run until button attached to 24 is pressed, then 
+        # this will run until button attached to 35 is pressed, then 
         # if pressed long, shut program, if pressed very long shutdown Pi
         # stop recording and shutdown gracefully
-        print "Waiting for button press" # rising edge on port 24"
-        GPIO.wait_for_edge(24, GPIO.RISING)
+        print "Waiting for button press" # rising edge on port 35
+        GPIO.wait_for_edge(35, GPIO.RISING)
         print "Stop button pressed"
         stop_recording()
 
-        # poll GPIO 24 button at 20 Hz continuously for 3 seconds
+        # poll GPIO 35 button at 20 Hz continuously for 3 seconds
         # if at the end of that time button is still pressed, shut down
         # if it's released at all, break
         for i in range(60):
-            if not GPIO.input(24):
+            if not GPIO.input(35):
                 break
             sleep(0.05)
 
@@ -179,7 +177,7 @@ try:
             GPIO.cleanup()
             sys.exit()
 
-        if GPIO.input(24):
+        if GPIO.input(35):
             if i >= 59:
                 shutdown()
 
